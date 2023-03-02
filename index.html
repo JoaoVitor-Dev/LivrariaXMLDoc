@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="estilo.css">
+    <title>Livraria</title>
+</head>
+<body>
+    <h1>Livraria</h1>
+    <form>
+        <input id="titulo" placeholder="Título">
+        <input id="autor" placeholder="autor">
+        <input id="ano" placeholder="Ano">
+        <input id="preco" placeholder="Preço">
+        <input id="btCadastrar" type="submit" value="Salvar">
+    </form>
+    <form>
+        <input type="number" id="filtroAno">
+        <input type="button" id="botaoFiltrar" value="Filtrar Por ano">
+    </form>
+    <form>
+        <input type="text" id="inputBuscarTitulo">
+        <input type="submit" id="btBuscar" value="Buscar">
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Ano</th>
+                <th>Preço</th>
+                <th>Editar</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script src="codigo.js"></script>
+</body>
+</html>
