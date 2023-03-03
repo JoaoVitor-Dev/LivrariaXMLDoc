@@ -91,7 +91,10 @@ function editar(botao)
 
 function deletar(botao)
 {
-    console.log(botao)
+    confirm('Deseja deletar este livro?')
+    let tr = botao.closest('tr'), tds = tr.getElementsByTagName("td")
+
+    tr.remove()
 }
 
 const pegaDadoDoLivro= (tag,livro) => {
@@ -133,8 +136,42 @@ function submit(evento){
 
     if(trEditavel) editarLinha(_titulo, _autor, _ano, _preco)
     else cadastrar(_titulo, _autor, _ano, _preco)
+
+    editarOuExcluirLivro(0, _titulo, _autor, _ano, _preco, false)
 }
 
+function editarOuExcluirLivro(indice, novoTitulo, novoAutor, novoAno, novoPreco, excluirLivro) {
+    // Obtém a string XML do LocalStorage
+    let livraria = localStorage.getItem("livraria");
+  
+    // Converte a string em um objeto XML
+    let parser = new DOMParser();
+    let xmlDoc = parser.parseFromString(livraria, "text/xml");
+  
+    // Seleciona o elemento do livro pelo índice
+    let livros = xmlDoc.getElementsByTagName("livro");
+    let livro = livros[indice];
+  
+    if (livro) {
+      // Edita os atributos do livro
+      livro.getElementsByTagName("titulo")[0].childNodes[0].nodeValue = novoTitulo;
+      livro.getElementsByTagName("autor")[0].childNodes[0].nodeValue = novoAutor;
+      livro.getElementsByTagName("ano")[0].childNodes[0].nodeValue = novoAno;
+      livro.getElementsByTagName("preco")[0].childNodes[0].nodeValue = novoPreco;
+  
+      if (excluirLivro) {
+        // Remove o elemento do livro
+        livro.parentNode.removeChild(livro);
+      }
+  
+      // Converte o objeto XML de volta para uma string
+      livraria = new XMLSerializer().serializeToString(xmlDoc);
+  
+      // Armazena a string XML atualizada no LocalStorage
+      localStorage.setItem("livraria", livraria);
+    }
+  }
+  
 
 function editarLinha(titulo, autor, ano, preco){
     trEditavel.innerHTML = `<td>${titulo}</td>
@@ -144,13 +181,12 @@ function editarLinha(titulo, autor, ano, preco){
     <td><input type='button' onclick='editar(this)' value='Editar'></td>
     <td><input type='button' onclick='deletar(this)' value='Deletar'></td>`
 
+    let novoLivro = trEditavel
+
     trEditavel = null
 
     limpaCampos()
-
-    const xmlDoc=xmlParaDoc();
-
-    salvar(xmlDoc)
+    
 }
 
 
