@@ -4,57 +4,72 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="estilo.css">
+    <link rel="stylesheet" href="style.css">
     <title>Livraria</title>
 </head>
 <body>
-    <h1>Livraria</h1>
-    <form>
-        <input id="identificador" type="hidden">
-        <input id="titulo" placeholder="Título">
-        <input id="autor" placeholder="autor">
-        <input id="ano" placeholder="Ano">
-        <input id="preco" placeholder="Preço">
-        <select id="categoria" name="">
-            <option value="0" selected>-Categoria-</option>
-            <option value="Programação">Programação</option>
-            <option value="BancodeDados">Banco de Dados</option>
-            <option value="CiênciadeDados">Ciência de Dados</option>
-            <option value="InteligênciaArtificial">Inteligência Artificial</option>
-        </select>
-        <input id="btCadastrar" type="submit" value="Cadastrar">
-    </form>
-    <form>
-        <input type="number" id="filtroAno">
-        <input type="button" id="botaoFiltrar" value="Filtrar Por ano">
-    </form>
-    <form>
-        <input type="text" id="inputBuscarTitulo">
-        <input type="submit" id="btBuscar" value="Buscar Preço">
-    </form>
-    <form>
-        <select id="filtroCategoria" name="categoria">
-            <option value="0" selected>-Categoria-</option>
-            <option value="Programação">Programação</option>
-            <option value="BancodeDados">Banco de Dados</option>
-            <option value="CiênciadeDados">Ciência de Dados</option>
-            <option value="InteligênciaArtificial">Inteligência Artificial</option>
-        </select>
-        <input type="button" id="filtrarCategoria" value="Filtrar Categoria">
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th>Título</th>
-                <th>Autor</th>
-                <th>Ano</th>
-                <th>Preço</th>
-                <th>Editar</th>
-                <th>Deletar</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <main class="content">
+        <h1>Livraria</h1>
+        <div class="create">
+            <form>
+                <input id="identificador" type="hidden">
+                <input id="titulo" type="text" placeholder="Título">
+                <input id="autor" type="text" placeholder="autor">
+                <input id="ano" type="text" placeholder="Ano">
+                <input id="preco" type="text" placeholder="Preço">
+                <select id="categoria" name="">
+                    <option value="0" selected>-Categoria-</option>
+                    <option value="Programação">Programação</option>
+                    <option value="BancodeDados">Banco de Dados</option>
+                    <option value="CiênciadeDados">Ciência de Dados</option>
+                    <option value="InteligênciaArtificial">Inteligência Artificial</option>
+                </select>
+                <input class="button" id="btCadastrar" type="submit" value="Cadastrar">
+            </form>
+        </div>
+        <div class="create">
+            <form>
+                <input type="number" id="filtroAno">
+                <input class="button"  type="button" id="botaoFiltrar" value="Filtrar Por ano">
+            </form>
+        </div>
+        
+        <div class="create">
+            <form>
+                <input type="text" id="inputBuscarTitulo">
+                <input class="button" type="submit" id="btBuscar" value="Buscar Preço">
+            </form>
+        </div>
+        <div class="create">
+            <form>
+                <select id="filtroCategoria" name="categoria">
+                    <option value="0" selected>-Categoria-</option>
+                    <option value="Programação">Programação</option>
+                    <option value="BancodeDados">Banco de Dados</option>
+                    <option value="CiênciadeDados">Ciência de Dados</option>
+                    <option value="InteligênciaArtificial">Inteligência Artificial</option>
+                </select>
+                <input type="button" class="button" id="filtrarCategoria" value="Filtrar Categoria">
+            </form>
+        </div>
+
+        <div class="corp">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Ano</th>
+                        <th>Preço</th>
+                        <th>Editar</th>
+                        <th>Deletar</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+            
+    </main>
     <script src="codigo.js"></script>
 </body>
 </html>
