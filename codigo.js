@@ -1,4 +1,4 @@
-let trEditavel = null
+
 
 function xmlParaDoc()
 {
@@ -8,15 +8,22 @@ function xmlParaDoc()
     const parser=new DOMParser();
     return parser.parseFromString(livraria,"text/xml");
 }
-
 function salvar(xmlDoc)
 {
-    let serealizador = new XMLSerializer();
+    let serealizador=new  XMLSerializer();
     let textoXML=serealizador.serializeToString(xmlDoc);
     localStorage.dados=textoXML;
-    //console.log(textoXML)
 }
-
+function pegaProximoSerial()
+{
+    let novoId=localStorage.serial;
+    if(novoId==undefined)
+        novoId=1;
+    else
+        novoId++;
+    localStorage.serial=novoId;
+    return novoId;
+}
 function preencheTabela(xmlDoc)
 {
     const raiz=xmlDoc.documentElement;
@@ -29,7 +36,6 @@ function preencheTabela(xmlDoc)
     }
     document.querySelector("tbody").innerHTML=texto;
 }  
-
 function preencheTabelaFiltradoPorAno(xmlDoc,ano)
 {
     const raiz=xmlDoc.documentElement;
@@ -43,8 +49,6 @@ function preencheTabelaFiltradoPorAno(xmlDoc,ano)
     }
     document.querySelector("tbody").innerHTML=texto;
 }  
-
-
 function livroParaTd(livro)
 {
     let titulo=pegaDadoDoLivro("titulo",livro)
@@ -57,46 +61,107 @@ function livroParaTd(livro)
                 <td>${autor}</td>
                 <td>${ano}</td>
                 <td>${preco}</td>
-                <td><input type='button' onclick='editar(this)' value='Editar'></td>
-                <td><input type='button' onclick='deletar(this)' value='Deletar'></td>
+                <td><input data-id="${livro.getAttribute("id")}" type='button' onclick='antetesDeEditar(this)' value='Editar'></td>
+                <td><input data-id="${livro.getAttribute("id")}" type='button' onclick='deletar(this)' value='Deletar'></td>
             </tr>
             `
     //return "<tr><td>"+titulo+"</td><td>"+autor+"</td>";
 }
+function editar(evento){
+    
+    evento.preventDefault();
+    
+    //pegar o documento XML
+    const xmlDoc=xmlParaDoc();
 
-function limpaCampos(){
-    document.getElementById('titulo').value = ''
-    document.getElementById('autor').value = ''
-    document.getElementById('ano').value = ''
-    document.getElementById('preco').value = ''
+    //pegar os dados do formulario
+    const titulo=document.getElementById("titulo").value
+    const autor=document.getElementById("autor").value
+    const ano=document.getElementById("ano").value
+    const preco=document.getElementById("preco").value
+    const id=document.getElementById("identificador").value
+
+    //buscar o livro que se quer editar
+    const livroParaEditar=buscar(id,xmlDoc.documentElement);
+
+    //trocar os dados do no livro
+    livroParaEditar.getElementsByTagName("titulo")[0].firstChild.nodeValue=titulo;
+    livroParaEditar.getElementsByTagName("autor")[0].firstChild.nodeValue=autor;
+    livroParaEditar.getElementsByTagName("ano")[0].firstChild.nodeValue=ano;
+    livroParaEditar.getElementsByTagName("preco")[0].firstChild.nodeValue=preco;
+    
+    //salvar
+    salvar(xmlDoc);
+    //redesenhar a tela
+    preencheTabela(xmlDoc)
+    //remover a classe do formulario
+    const botao=evento.target;
+    botao.parentNode.classList.remove("flutuar");
+
+    //trocar o value do botão
+    botao.value="Cadastrar"
+    //trocar o envento de click do botão
+    botao.onclick=cadastrar;
 }
-
-//Função para limpar os campos do Formulário
-function editar(botao)
+function antetesDeEditar(botao)
 {
-    let tr = botao.closest('tr'), tds = tr.getElementsByTagName("td")
+    //copiar os dados para o formulario
 
-    let valueTitulo = tds[0].firstChild.nodeValue
-    let valueAutor = tds[1].firstChild.nodeValue
-    let valueAno = tds[2].firstChild.nodeValue
-    let valuePreco = tds[3].firstChild.nodeValue
+    const tr=botao.parentNode.parentNode;
+    const tds=tr.getElementsByTagName("td");
+    const titulo=tds[0].firstChild.nodeValue;
+    const autor=tds[1].innerText;
+    const ano=tds[2].innerText;
+    const preco=tds[3].innerText;
 
-    document.getElementById('titulo').value = valueTitulo
-    document.getElementById('autor').value = valueAutor
-    document.getElementById('ano').value = valueAno
-    document.getElementById('preco').value = valuePreco
+    document.getElementById("titulo").value=titulo;
+    document.getElementById("autor").value=autor;
+    document.getElementById("ano").value=ano;
+    document.getElementById("preco").value=preco;
+    document.getElementById("identificador").value=botao.getAttribute("data-id");
 
-    trEditavel = tr
+    //trocar o value do botão para Editar
+    const botaoCadastrar=document.getElementById("btCadastrar");
+    botaoCadastrar.value="Editar"
+    //trocar o envento de click para Editar
+    botaoCadastrar.onclick=editar;
+
+    //colocar classe CSS no formulario para deixa-lo mais pra frente.
+    botaoCadastrar.parentNode.classList.add("flutuar"); //botao.parentNode.setAttribute("class","flutuar");
+
 }
-
 function deletar(botao)
 {
-    confirm('Deseja deletar este livro?')
-    let tr = botao.closest('tr'), tds = tr.getElementsByTagName("td")
+    //pegar o documento XML
+    const xmlDoc=xmlParaDoc();
+    const raiz=xmlDoc.documentElement;
+    //pesquisar pelo livro com o id informado
+    let livroParaRemover=buscar(botao.getAttribute("data-id"),raiz);
 
-    tr.remove()
+    if(livroParaRemover!=null)
+    {
+        //remover o livro informado
+        raiz.removeChild(livroParaRemover);
+
+        //salvar o documento XML
+        salvar(xmlDoc)
+
+        //redesenhar a tela
+        preencheTabela(xmlDoc)
+    }
+    else
+        alert("Não foi possível remover");
 }
-
+function buscar(id,raiz)
+{
+    const livros=raiz.getElementsByTagName("livro");
+    for(let livro of livros)
+    {
+        if(livro.getAttribute("id")==id)
+            return livro;
+    }
+    return null;
+}
 const pegaDadoDoLivro= (tag,livro) => {
     let elementos=livro.getElementsByTagName(tag);
     if(tag=="autor" && elementos.length>1)
@@ -108,7 +173,7 @@ const pegaDadoDoLivro= (tag,livro) => {
         return texto;
     }
     else
-        return elementos[0].firstChild?.nodeValue || ''
+        return elementos[0].firstChild.nodeValue
 }
 
 /*function pegaDadoDoLivro(tag,livro)
@@ -123,81 +188,31 @@ function criaElementoNoLivro(tag,texto,nolivro,xmlDoc)
     nolivro.appendChild(noElemento);
 }
 
-function submit(evento){
+function cadastrar(evento)
+{
 
     evento.preventDefault();
-    //pegar os dados da interface
-    const _titulo=document.getElementById("titulo").value
-    const _autor=document.getElementById("autor").value
-    const _ano=document.getElementById("ano").value 
-    const _preco=document.getElementById("preco").value 
-
-    if(!_titulo || !_autor || !_ano || !_preco) return alert('Os campos não podem ser vazios')
-
-    if(trEditavel) editarLinha(_titulo, _autor, _ano, _preco)
-    else cadastrar(_titulo, _autor, _ano, _preco)
-
-    editarOuExcluirLivro(0, _titulo, _autor, _ano, _preco, false)
-}
-
-function editarOuExcluirLivro(indice, novoTitulo, novoAutor, novoAno, novoPreco, excluirLivro) {
-    // Obtém a string XML do LocalStorage
-    let livraria = localStorage.getItem("livraria");
-  
-    // Converte a string em um objeto XML
-    let parser = new DOMParser();
-    let xmlDoc = parser.parseFromString(livraria, "text/xml");
-  
-    // Seleciona o elemento do livro pelo índice
-    let livros = xmlDoc.getElementsByTagName("livro");
-    let livro = livros[indice];
-  
-    if (livro) {
-      // Edita os atributos do livro
-      livro.getElementsByTagName("titulo")[0].childNodes[0].nodeValue = novoTitulo;
-      livro.getElementsByTagName("autor")[0].childNodes[0].nodeValue = novoAutor;
-      livro.getElementsByTagName("ano")[0].childNodes[0].nodeValue = novoAno;
-      livro.getElementsByTagName("preco")[0].childNodes[0].nodeValue = novoPreco;
-  
-      if (excluirLivro) {
-        // Remove o elemento do livro
-        livro.parentNode.removeChild(livro);
-      }
-  
-      // Converte o objeto XML de volta para uma string
-      livraria = new XMLSerializer().serializeToString(xmlDoc);
-  
-      // Armazena a string XML atualizada no LocalStorage
-      localStorage.setItem("livraria", livraria);
-    }
-  }
-  
-
-function editarLinha(titulo, autor, ano, preco){
-    trEditavel.innerHTML = `<td>${titulo}</td>
-    <td>${autor}</td>
-    <td>${ano}</td>
-    <td>${preco}</td>
-    <td><input type='button' onclick='editar(this)' value='Editar'></td>
-    <td><input type='button' onclick='deletar(this)' value='Deletar'></td>`
-
-    let novoLivro = trEditavel
-
-    trEditavel = null
-
-    limpaCampos()
-    
-}
-
-
-function cadastrar(titulo, autor, ano, preco)
-{
-    
     //pegar o documento XML
     const xmlDoc=xmlParaDoc();
 
+    //pegar os dados da interface
+    const titulo=document.getElementById("titulo").value;
+    const autor=document.getElementById("autor").value;
+    const ano=document.getElementById("ano").value;
+    const preco=document.getElementById("preco").value;
+    const categoria = document.getElementById('categoria').value;
+
+    if(titulo == '') return alert("Informe um título")
+    if(autor == '') return alert("Informe um autor")
+    if(ano == '') return alert("Informe um ano")
+    if(preco == '') return alert("Informe um preco")
+    if(categoria == '0') return alert("Selecione uma categoria")
+
     //criar um livro
     const nolivro=xmlDoc.createElement("livro");
+
+    nolivro.setAttribute("id",pegaProximoSerial());
+    nolivro.setAttribute("categoria", categoria)
 
     //inserir os dados da interface no livro
     criaElementoNoLivro("titulo",titulo,nolivro,xmlDoc);
@@ -214,7 +229,7 @@ function cadastrar(titulo, autor, ano, preco)
     //Redesenha a Tela
     preencheTabela(xmlDoc)
 
-    limpaCampos()
+    limpaForm()
 }
 
 function buscarPorTitulo(evento)
@@ -237,6 +252,33 @@ onload=function(){
         let ano=document.getElementById("filtroAno").value;
         preencheTabelaFiltradoPorAno(xmlParaDoc(),ano);
     }
-    document.getElementById("btCadastrar").onclick=submit;
+    this.document.getElementById("filtrarCategoria").onclick=function(){
+        let categoriaSelecionada = document.getElementById('filtroCategoria').value
+        console.log(categoriaSelecionada)
+        preencheTabelaFiltradoPorCategoria(xmlParaDoc(), categoriaSelecionada)
+    }
+    document.getElementById("btCadastrar").onclick=cadastrar;
     document.getElementById("btBuscar").addEventListener("click",buscarPorTitulo);
 }
+
+function limpaForm(){
+    document.getElementById('titulo').value = ''
+    document.getElementById('autor').value = ''
+    document.getElementById('ano').value = ''
+    document.getElementById('preco').value = ''
+    document.getElementById('categoria').value = ''
+}
+
+function preencheTabelaFiltradoPorCategoria(xmlDoc,categoria)
+{
+    const raiz=xmlDoc.documentElement;
+    const livros=raiz.getElementsByTagName("livro");
+    
+    let texto="";
+    for(let livro of livros)
+    {
+        if(livro.getAttribute("categoria") == categoria)
+            texto+=livroParaTd(livro);
+    }
+    document.querySelector("tbody").innerHTML=texto;
+}  
