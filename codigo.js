@@ -55,8 +55,25 @@ function livroParaTd(livro)
     let autor=pegaDadoDoLivro("autor",livro);
     let ano=pegaDadoDoLivro("ano",livro);
     let preco=pegaDadoDoLivro("preco",livro)
+    let categoria=livro.getAttribute("categoria")
 
-    return `<tr>
+    let fundo = ''
+
+    switch(categoria){
+        case "Programação":
+            fundo = 'background-color: green'
+            break
+        case "BancodeDados":
+            fundo = 'background-color: red' 
+            break
+        case "CiênciadeDados":
+            fundo = 'background-color: blue'
+            break
+        case "InteligênciaArtificial":
+            fundo = 'background-color: yellow'
+            break
+    }
+        return `<tr class="${fundo}">
                 <td>${titulo}</td>
                 <td>${autor}</td>
                 <td>${ano}</td>
@@ -64,7 +81,7 @@ function livroParaTd(livro)
                 <td><input data-id="${livro.getAttribute("id")}" type='button' onclick='antetesDeEditar(this)' value='Editar'></td>
                 <td><input data-id="${livro.getAttribute("id")}" type='button' onclick='deletar(this)' value='Deletar'></td>
             </tr>
-            `
+            `   
     //return "<tr><td>"+titulo+"</td><td>"+autor+"</td>";
 }
 function editar(evento){
